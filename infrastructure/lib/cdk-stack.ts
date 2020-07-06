@@ -14,9 +14,9 @@ export class CdkStack extends cdk.Stack {
       code: lambda.Code.fromAsset("../fetchDataLambda"),
     });
 
-    new apiGateway.LambdaRestApi(this, 'apiDemoRestApi', {
-      handler: fetchDataLambda,
-    });
+    const api = new apiGateway.RestApi(this, 'apiDemoRestApi');
+    const coursesEndpoint = api.root.addResource('courses');
+    coursesEndpoint.addMethod('GET', new apiGateway.LambdaIntegration(fetchDataLambda));  // GET /courses
 
   }
 }
