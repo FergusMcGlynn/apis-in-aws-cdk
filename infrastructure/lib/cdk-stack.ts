@@ -1,6 +1,8 @@
 import * as cdk from '@aws-cdk/core';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as apiGateway from '@aws-cdk/aws-apigateway';
+import { readFileSync } from 'fs';
+import {ServicePrincipal} from "@aws-cdk/aws-iam";
 
 export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -14,9 +16,25 @@ export class CdkStack extends cdk.Stack {
       code: lambda.Code.fromAsset("../fetchDataLambda"),
     });
 
-    const api = new apiGateway.RestApi(this, 'apiDemoRestApi');
-    const coursesEndpoint = api.root.addResource('courses');
-    coursesEndpoint.addMethod('GET', new apiGateway.LambdaIntegration(fetchDataLambda));  // GET /courses
+    // allow lambda to be invoked by API Gateway
+    fetchDataLambda.grantInvoke(new ServicePrincipal('apigateway.amazonaws.com'));
+
+    // fetch OpenAPI specification
+    const openApiSpecJson = readFileSync("../openApiSpecification.json", 'utf8');
+    const openApiSpec = JSON.parse(openApiSpecJson);
+
+    // add lambda integration details for /courses endpoint to the specification
+    openApiSpec["paths"]["/courses"]["get"]["x-amazon-apigateway-integration"] = {
+      uri: `arn:aws:apigateway:${process.env.CDK_DEFAULT_REGION}:lambda:path/2015-03-31/functions/${fetchDataLambda.functionArn}/invocations`,
+      type: "aws_proxy",
+      httpMethod: "POST",
+      passthroughBehavior: "when_no_match"
+    };
+
+    // set up API based on OpenAPI specification
+    new apiGateway.SpecRestApi(this, 'apiDemoRestApi', {
+      apiDefinition: apiGateway.ApiDefinition.fromInline(openApiSpec),
+    });
 
   }
 }
