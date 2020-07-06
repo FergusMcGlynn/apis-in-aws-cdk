@@ -1,5 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import * as lambda from '@aws-cdk/aws-lambda';
+import * as apiGateway from '@aws-cdk/aws-apigateway';
 
 export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -11,6 +12,10 @@ export class CdkStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_12_X,
       handler: 'index.handler',
       code: lambda.Code.fromAsset("../fetchDataLambda"),
+    });
+
+    new apiGateway.LambdaRestApi(this, 'apiDemoRestApi', {
+      handler: fetchDataLambda,
     });
 
   }
