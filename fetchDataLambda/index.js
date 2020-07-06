@@ -9,7 +9,7 @@ exports.handler = async function(event, context, callback) {
     // return the data we just received
     callback(null, {
         statusCode: 200,
-        body: json
+        body: JSON.stringify(responseBody)
     });
 };
 
