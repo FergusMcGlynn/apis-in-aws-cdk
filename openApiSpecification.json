@@ -40,6 +40,12 @@
               }
             }
           }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "uri": "THIS NEEDS TO BE SET DYNAMICALLY - WE WON'T KNOW THE LAMBDA ARN UNTIL IT'S BEEN CREATED",
+          "httpMethod": "POST",
+          "passthroughBehavior": "when_no_match"
         }
       }
     }

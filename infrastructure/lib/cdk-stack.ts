@@ -25,12 +25,7 @@ export class CdkStack extends cdk.Stack {
     const openApiSpec = JSON.parse(openApiSpecJson);
 
     // add lambda integration details for /courses endpoint to the specification
-    openApiSpec["paths"]["/courses"]["get"]["x-amazon-apigateway-integration"] = {
-      uri: `arn:aws:apigateway:${process.env.CDK_DEFAULT_REGION}:lambda:path/2015-03-31/functions/${fetchDataLambda.functionArn}/invocations`,
-      type: "aws_proxy",
-      httpMethod: "POST",  // note that lambda proxy integrations require "POST" http method (see https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-integration.html)
-      passthroughBehavior: "when_no_match"
-    };
+    openApiSpec["paths"]["/courses"]["get"]["x-amazon-apigateway-integration"]["uri"] = `arn:aws:apigateway:${process.env.CDK_DEFAULT_REGION}:lambda:path/2015-03-31/functions/${fetchDataLambda.functionArn}/invocations`;
 
     // set up API based on OpenAPI specification
     new apiGateway.SpecRestApi(this, 'apiDemoRestApi', {
