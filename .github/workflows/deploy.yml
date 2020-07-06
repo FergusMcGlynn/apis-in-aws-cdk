@@ -1,0 +1,32 @@
+on: push
+jobs:
+  deploy_aws_infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out the source code
+        uses: actions/checkout@v2
+
+      - name: Install node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Install CDK
+        run: npm install -g aws-cdk
+
+      - name: Install Lambda source code dependencies
+        working-directory: ./fetchDataLambda
+        run: npm install
+
+      - name: Install CDK project dependencies and deploy infrastructure
+        working-directory: ./infrastructure
+        run: |
+          npm install
+          cdk bootstrap
+          cdk deploy --require-approval=never
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: eu-west-1
