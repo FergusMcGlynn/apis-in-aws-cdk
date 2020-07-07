@@ -32,5 +32,7 @@ export class CdkStack extends cdk.Stack {
       apiDefinition: apiGateway.ApiDefinition.fromInline(openApiSpec),
     });
 
+    // thanks for reading
+
   }
 }
